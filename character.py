@@ -1,5 +1,5 @@
 import pygame
-import  constants
+import constants
 
 
 class Character:
@@ -7,6 +7,9 @@ class Character:
         self.rect = pygame.Rect(0, 0, 40, 40)
         self.rect.center = (x, y)
 
-    def draw(self, surface):
-        pygame.draw.rect(surface, constants.RED,self.rect)
+    def move(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
 
+    def draw(self, surface):
+        pygame.draw.rect(surface, constants.RED, self.rect)
