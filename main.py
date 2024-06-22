@@ -1,6 +1,7 @@
 import pygame
 import constants
 from character import Character
+from weapon import Weapon
 
 pygame.init()
 
@@ -22,18 +23,32 @@ def scale_image(image, scale):
     return pygame.transform.scale(image, (w, h))
 
 
+# load weapon images
+bow_image = scale_image(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(), constants.WEAPON_SCALE)
+arrow_image = scale_image(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(), constants.WEAPON_SCALE)
+
+bow = Weapon(bow_image, arrow_image)
+
+mob_types = ['elf', 'imp', 'skeleton', 'goblin', 'muddy', 'tiny_zombie', 'big_demon']
+
 animation_types = ['idle', 'run']
 
 animation_list = []
-for animation in animation_types:
-    tmp_list = []
-    for i in range(4):
-        img = pygame.image.load(f'assets/images/characters/elf/{animation}/{i}.png').convert_alpha()
-        img = scale_image(img, constants.SCALE)
-        tmp_list.append(img)
-    animation_list.append(tmp_list)
+for mob in mob_types:
+    mob_animations = []
+    for animation in animation_types:
+        tmp_list = []
+        for i in range(4):
+            img = pygame.image.load(f'assets/images/characters/{mob}/{animation}/{i}.png').convert_alpha()
+            img = scale_image(img, constants.SCALE)
+            tmp_list.append(img)
+        animation_list.append(tmp_list)
+    mob_animations.append(animation_list)
+player = Character(100, 100, mob_animations, 0)
 
-player = Character(100, 100, animation_list)
+# create sprite groups
+
+arrow_group = pygame.sprite.Group()
 
 while run:
     clock.tick(constants.FPS)
@@ -57,9 +72,18 @@ while run:
 
     # update player
     player.update()
+    arrow = bow.update(player)
+    if arrow:
+        arrow_group.add(arrow)
+
+    for arrow in arrow_group:
+        arrow.update()
 
     # draw player
     player.draw(screen)
+    bow.draw(screen)
+    for arrow in arrow_group:
+        arrow.draw(screen)
     # event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
