@@ -33,9 +33,9 @@ mob_types = ['elf', 'imp', 'skeleton', 'goblin', 'muddy', 'tiny_zombie', 'big_de
 
 animation_types = ['idle', 'run']
 
-animation_list = []
+mob_animations = []
 for mob in mob_types:
-    mob_animations = []
+    animation_list = []
     for animation in animation_types:
         tmp_list = []
         for i in range(4):
@@ -44,7 +44,12 @@ for mob in mob_types:
             tmp_list.append(img)
         animation_list.append(tmp_list)
     mob_animations.append(animation_list)
-player = Character(100, 100, mob_animations, 0)
+
+player = Character(100, 100, 100, mob_animations, 0)
+enemy = Character(200, 200, 100, mob_animations, 1)
+
+# create enemy
+enemy_list = [enemy]
 
 # create sprite groups
 
@@ -72,18 +77,25 @@ while run:
 
     # update player
     player.update()
+
+    for enemy in enemy_list:
+        enemy.update()
+
     arrow = bow.update(player)
     if arrow:
         arrow_group.add(arrow)
 
     for arrow in arrow_group:
-        arrow.update()
+        arrow.update(enemy_list)
 
     # draw player
     player.draw(screen)
     bow.draw(screen)
     for arrow in arrow_group:
         arrow.draw(screen)
+
+    for enemy in enemy_list:
+        enemy.draw(screen)
     # event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

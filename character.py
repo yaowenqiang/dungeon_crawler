@@ -5,17 +5,20 @@ import constants
 
 
 class Character:
-    def __init__(self, x, y, mob_animations, char_type):
+    def __init__(self, x, y, health, mob_animations, char_type):
         self.char_type = char_type
+        self.flip = False
         self.rect = pygame.Rect(0, 0, 40, 40)
         self.rect.center = (x, y)
         self.frame_index = 0
         self.action = 0  # 0 is idle, 1 is running
-        self.animation_list = mob_animations[char_type]
-        self.image = self.animation_list[self.action][self.frame_index]
-        self.flip = False
         self.update_time = pygame.time.get_ticks()
+        self.animation_list = mob_animations[char_type]
         self.running = False
+
+        self.image = self.animation_list[self.action][self.frame_index]
+        self.health = health
+        self.alive = True
 
     def move(self, dx, dy):
         # control diagonal speed
@@ -43,7 +46,11 @@ class Character:
             self.update_time = pygame.time.get_ticks()
 
     def update(self):
-        if self.running == True:
+        if self.health <= 0:
+            self.health = 0
+            self.alive = False
+
+        if self.running:
             self.update_action(1)
         else:
             self.update_action(0)
