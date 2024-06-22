@@ -7,6 +7,7 @@ import constants
 class Character:
     def __init__(self, x, y, health, mob_animations, char_type):
         self.char_type = char_type
+        self.score = 0
         self.flip = False
         self.rect = pygame.Rect(0, 0, 40, 40)
         self.rect.center = (x, y)

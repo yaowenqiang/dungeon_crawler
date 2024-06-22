@@ -2,6 +2,7 @@ import pygame
 import constants
 from character import Character
 from weapon import Weapon
+from items import Item
 
 pygame.init()
 
@@ -36,6 +37,16 @@ heart_half_image = scale_image(pygame.image.load("assets/images/items/heart_half
                                constants.ITEM_SCALE)
 heart_full_image = scale_image(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(),
                                constants.ITEM_SCALE)
+
+# load coin images
+coin_images = []
+for x in range(4):
+    image = scale_image(pygame.image.load(f"assets/images/items/coin_f{x}.png").convert_alpha(),
+                        constants.ITEM_SCALE)
+    coin_images.append(image)
+
+    red_potion = scale_image(pygame.image.load(f"assets/images/items/potion_red.png").convert_alpha(),
+                             constants.POTION_SCALE)
 
 bow = Weapon(bow_image, arrow_image)
 
@@ -76,6 +87,11 @@ class DamageText(pygame.sprite.Sprite):
             self.kill()
 
 
+def draw_text(text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x, y))
+
+
 def draw_info():
     pygame.draw.rect(screen, constants.PANEL_COLOR, (0, 0, constants.SCREEN_WIDTH, 50))
     pygame.draw.line(screen, constants.WHITE, (0, 50), (constants.SCREEN_WIDTH, 50))
@@ -89,6 +105,9 @@ def draw_info():
         else:
             screen.blit(heart_empty_image, (i * 50 + 10, 0))
 
+    # show score
+    draw_text(f'X: {player.score}', font, constants.WHITE, constants.SCREEN_WIDTH - 250,
+              (50 - font.get_height()) / 2)
 
 
 player = Character(100, 100, 15, mob_animations, 0)
@@ -106,6 +125,15 @@ damage_text_group = pygame.sprite.Group()
 # create sprite groups
 
 arrow_group = pygame.sprite.Group()
+item_group = pygame.sprite.Group()
+
+potion = Item(200, 200, 1, [red_potion])
+coin = Item(400, 400, 0, coin_images)
+score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images)
+
+item_group.add(potion)
+item_group.add(coin)
+item_group.add(score_coin)
 
 while run:
     clock.tick(constants.FPS)
@@ -143,8 +171,11 @@ while run:
             damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
             damage_text_group.add(damage_text)
 
-    for damage in damage_text_group:
-        damage.update()
+    # for damage in damage_text_group:
+    #     damage.update()
+
+    damage_text_group.update()
+    item_group.update(player)
 
     # draw player
     player.draw(screen)
@@ -156,8 +187,10 @@ while run:
         enemy.draw(screen)
 
     damage_text_group.draw(screen)
+    item_group.draw(screen)
 
     draw_info()
+    score_coin.draw(screen)
 
     # event handler
     for event in pygame.event.get():
