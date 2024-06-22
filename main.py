@@ -15,7 +15,25 @@ moving_right = False
 moving_up = False
 moving_down = False
 
-player = Character(100, 100)
+
+def scale_image(image, scale):
+    w = image.get_width() * scale
+    h = image.get_height() * scale
+    return pygame.transform.scale(image, (w, h))
+
+
+animation_types = ['idle', 'run']
+
+animation_list = []
+for animation in animation_types:
+    tmp_list = []
+    for i in range(4):
+        img = pygame.image.load(f'assets/images/characters/elf/{animation}/{i}.png').convert_alpha()
+        img = scale_image(img, constants.SCALE)
+        tmp_list.append(img)
+    animation_list.append(tmp_list)
+
+player = Character(100, 100, animation_list)
 
 while run:
     clock.tick(constants.FPS)
@@ -36,6 +54,9 @@ while run:
         dy = constants.SPEED
 
     player.move(dx, dy)
+
+    # update player
+    player.update()
 
     # draw player
     player.draw(screen)
@@ -64,7 +85,6 @@ while run:
                 moving_up = False
             if event.key == pygame.K_s:
                 moving_down = False
-
 
     pygame.display.update()
 
