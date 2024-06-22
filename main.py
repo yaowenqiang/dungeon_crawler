@@ -30,6 +30,12 @@ def scale_image(image, scale):
 # load weapon images
 bow_image = scale_image(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(), constants.WEAPON_SCALE)
 arrow_image = scale_image(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(), constants.WEAPON_SCALE)
+heart_empty_image = scale_image(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(),
+                                constants.ITEM_SCALE)
+heart_half_image = scale_image(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(),
+                               constants.ITEM_SCALE)
+heart_full_image = scale_image(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(),
+                               constants.ITEM_SCALE)
 
 bow = Weapon(bow_image, arrow_image)
 
@@ -62,7 +68,6 @@ class DamageText(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.counter = 0
 
-
     def update(self):
         # move damage text up
         self.rect.y -= 1
@@ -71,7 +76,22 @@ class DamageText(pygame.sprite.Sprite):
             self.kill()
 
 
-player = Character(100, 100, 100, mob_animations, 0)
+def draw_info():
+    pygame.draw.rect(screen, constants.PANEL_COLOR, (0, 0, constants.SCREEN_WIDTH, 50))
+    pygame.draw.line(screen, constants.WHITE, (0, 50), (constants.SCREEN_WIDTH, 50))
+    have_heart_drawn = False
+    for i in range(5):
+        if player.health >= ((i + 1) * 20):
+            screen.blit(heart_full_image, (i * 50 + 10, 0))
+        elif (player.health % 20 > 0) and have_heart_drawn == False:
+            screen.blit(heart_half_image, (i * 50 + 10, 0))
+            have_heart_drawn = True
+        else:
+            screen.blit(heart_empty_image, (i * 50 + 10, 0))
+
+
+
+player = Character(100, 100, 15, mob_animations, 0)
 enemy = Character(200, 200, 100, mob_animations, 1)
 
 # create enemy
@@ -136,6 +156,9 @@ while run:
         enemy.draw(screen)
 
     damage_text_group.draw(screen)
+
+    draw_info()
+
     # event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
