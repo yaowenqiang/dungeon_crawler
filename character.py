@@ -9,7 +9,7 @@ class Character:
         self.char_type = char_type
         self.score = 0
         self.flip = False
-        self.rect = pygame.Rect(0, 0, 40, 40)
+        self.rect = pygame.Rect(0, 0, constants.TILE_SIZE, constants.TILE_SIZE)
         self.rect.center = (x, y)
         self.frame_index = 0
         self.action = 0  # 0 is idle, 1 is running

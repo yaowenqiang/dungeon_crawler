@@ -3,6 +3,7 @@ import constants
 from character import Character
 from weapon import Weapon
 from items import Item
+from world import World
 
 pygame.init()
 
@@ -37,6 +38,12 @@ heart_half_image = scale_image(pygame.image.load("assets/images/items/heart_half
                                constants.ITEM_SCALE)
 heart_full_image = scale_image(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(),
                                constants.ITEM_SCALE)
+
+tile_list = []
+for x in range(constants.TILE_TYPES):
+    tile_image = pygame.image.load(f"assets/images/tiles/{x}.png").convert_alpha();
+    tile_image = pygame.transform.scale(tile_image, (constants.TILE_SIZE, constants.TILE_SIZE))
+    tile_list.append(tile_image)
 
 # load coin images
 coin_images = []
@@ -110,6 +117,25 @@ def draw_info():
               (50 - font.get_height()) / 2)
 
 
+world_data = [
+    [7, 7, 7, 7, 7],
+    [7, 0, 1, 2, 7],
+    [7, 3, 4, 5, 7],
+    [7, 7, 7, 7, 7],
+]
+
+world = World()
+world.process_data(world_data, tile_list)
+
+
+def draw_grid():
+    for x in range(30):
+        pygame.draw.line(screen, constants.WHITE, (x * constants.TILE_SIZE, 0),
+                         (x * constants.TILE_SIZE, constants.SCREEN_HEIGHT))
+        pygame.draw.line(screen, constants.WHITE, (0, x * constants.TILE_SIZE),
+                         (constants.SCREEN_WIDTH, x * constants.TILE_SIZE))
+
+
 player = Character(100, 100, 15, mob_animations, 0)
 enemy = Character(200, 200, 100, mob_animations, 1)
 
@@ -138,6 +164,7 @@ item_group.add(score_coin)
 while run:
     clock.tick(constants.FPS)
     screen.fill(constants.BG)
+    draw_grid()
     dx = 0  # delta x
     dy = 0
 
@@ -176,6 +203,7 @@ while run:
 
     damage_text_group.update()
     item_group.update(player)
+    world.draw(screen)
 
     # draw player
     player.draw(screen)
