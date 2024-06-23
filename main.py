@@ -14,7 +14,7 @@ pygame.display.set_caption("Dungeon Crawler!")
 clock = pygame.time.Clock()
 
 # define game variables
-level = 3
+level = 1
 run = True
 screen_scroll = [0, 0]
 
@@ -205,7 +205,7 @@ while run:
     if moving_down:
         dy = constants.SPEED
 
-    screen_scroll = player.move(dx, dy)
+    screen_scroll = player.move(dx, dy, world.obstacle_tiles)
 
     # update all objects
     player.update()

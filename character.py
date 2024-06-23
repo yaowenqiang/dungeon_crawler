@@ -22,7 +22,7 @@ class Character:
         self.health = health
         self.alive = True
 
-    def move(self, dx, dy):
+    def move(self, dx, dy, obstacle_tiles):
         screen_scroll = [0, 0]
         # control diagonal speed
         self.running = False
@@ -39,8 +39,22 @@ class Character:
             # 就是计算正方形的对角线的长度,
             dx = dx * (math.sqrt(2) / 2)
             dy = dy * (math.sqrt(2) / 2)
+
+        # check for collision with map in a directio
         self.rect.x += dx
+        for obstacle in obstacle_tiles:
+            if obstacle[1].colliderect(self.rect):
+                if dx > 0:
+                    self.rect.right = obstacle[1].left
+                if dx < 0:
+                    self.rect.left = obstacle[1].right
         self.rect.y += dy
+        for obstacle in obstacle_tiles:
+            if obstacle[1].colliderect(self.rect):
+                if dy > 0:
+                    self.rect.bottom = obstacle[1].top
+                if dy < 0:
+                    self.rect.top = obstacle[1].bottom
 
         if self.char_type == 0:
             if self.rect.right > (constants.SCREEN_WIDTH - constants.SCROLL_THRESH):
