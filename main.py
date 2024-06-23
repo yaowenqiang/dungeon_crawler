@@ -14,7 +14,7 @@ pygame.display.set_caption("Dungeon Crawler!")
 clock = pygame.time.Clock()
 
 # define game variables
-level = 1
+level = 3
 run = True
 screen_scroll = [0, 0]
 
@@ -37,6 +37,7 @@ def scale_image(image, scale):
 # load weapon images
 bow_image = scale_image(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(), constants.WEAPON_SCALE)
 arrow_image = scale_image(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(), constants.WEAPON_SCALE)
+fireball_image = scale_image(pygame.image.load("assets/images/weapons/fireball.png").convert_alpha(), constants.FIREBALL_SCALE)
 heart_empty_image = scale_image(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(),
                                 constants.ITEM_SCALE)
 heart_half_image = scale_image(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(),
@@ -178,6 +179,7 @@ damage_text_group = pygame.sprite.Group()
 
 arrow_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
+fireball_group = pygame.sprite.Group()
 
 # potion = Item(200, 200, 1, [red_potion])
 # coin = Item(400, 400, 0, coin_images)
@@ -215,8 +217,11 @@ while run:
 
     world.update(screen_scroll)
     for enemy in enemy_list:
-        enemy.ai(player, world.obstacle_tiles, screen_scroll, screen)
-        enemy.update()
+        fireball = enemy.ai(player, world.obstacle_tiles, screen_scroll, screen, fireball_image)
+        if fireball:
+            fireball_group.add(fireball)
+        if enemy.alive:
+            enemy.update()
 
     arrow = bow.update(player)
     if arrow:
@@ -231,6 +236,9 @@ while run:
     for damage in damage_text_group:
         damage.update()
 
+    for fireball in fireball_group:
+        fireball.update(screen_scroll, player)
+
     damage_text_group.update()
     item_group.update(screen_scroll, player)
     world.draw(screen)
@@ -240,6 +248,9 @@ while run:
     bow.draw(screen)
     for arrow in arrow_group:
         arrow.draw(screen)
+
+    for fireball in fireball_group:
+        fireball.draw(screen)
 
     for enemy in enemy_list:
         enemy.draw(screen)

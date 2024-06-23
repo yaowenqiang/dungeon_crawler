@@ -2,6 +2,7 @@ import math
 
 import pygame
 import constants
+from weapon import Fireball
 
 
 class Character:
@@ -24,6 +25,7 @@ class Character:
 
         self.hit = False
         self.last_hit = pygame.time.get_ticks()
+        self.last_attack = pygame.time.get_ticks()
         self.stunned = False
 
     def move(self, dx, dy, obstacle_tiles):
@@ -77,9 +79,10 @@ class Character:
         return screen_scroll
 
     # check distance to player
-    def ai(self, player, obstacle_tiles, screen_scroll, surface):
+    def ai(self, player, obstacle_tiles, screen_scroll, surface, fireball_image):
         ai_dx = 0
         ai_dy = 0
+        fireball = None
         clipped_line = ()
         stun_cooldown = 100
         self.rect.x += screen_scroll[0]
@@ -114,6 +117,16 @@ class Character:
                     player.hit = True
                     player.last_hit = pygame.time.get_ticks()
 
+                # boss enemy shoot fireballs
+
+                fireball_cooldown = 700
+                if self.boss:
+                    if dist < 500:
+                        if pygame.time.get_ticks() - self.last_attack > fireball_cooldown:
+                            fireball = Fireball(fireball_image, self.rect.centerx, self.rect.centery,
+                                                player.rect.centerx, player.rect.centery)
+                            self.last_attack = pygame.time.get_ticks()
+
             if self.hit:
                 self.hit = False
                 self.last_hit = pygame.time.get_ticks()
@@ -123,6 +136,7 @@ class Character:
 
             if pygame.time.get_ticks() - self.last_hit > stun_cooldown:
                 self.stunned = False
+        return fireball
 
     def update_action(self, new_action):
         if new_action != self.action:
