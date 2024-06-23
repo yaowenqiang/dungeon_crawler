@@ -1,12 +1,19 @@
+from character import Character
 import constants
+from items import Item
 
 
 class World:
     def __init__(self):
         self.map_tiles = []
         self.level_length = 0
+        self.obstacle_tiles = []  # 障碍物
+        self.item_list = []
+        self.exit_tile = None
+        self.player = None
+        self.character_list = []
 
-    def process_data(self, data, tile_list):
+    def process_data(self, data, tile_list, item_images, mob_animations=[]):
         self.level_length = len(data)
         for y, row in enumerate(data):
             for x, tile in enumerate(row):
@@ -19,6 +26,28 @@ class World:
                 image_rect.center = (image_x, image_y)
                 tile_data = [image, image_rect, image_x, image_y]
 
+                if tile == 7:
+                    self.obstacle_tiles.append(tile_data)
+                elif tile == 8:
+                    self.exit_tile = tile
+                elif tile == 9:
+                    coin = Item(image_x, image_y, 0, item_images[0])
+                    tile_data[0] = tile_list[0]
+                    self.item_list.append(coin)
+                elif tile == 10:
+                    potion = Item(image_x, image_y, 1, [item_images[1]])
+                    self.item_list.append(potion)
+                    tile_data[0] = tile_list[0]
+                elif tile == 11:
+                    self.player = Character(image_x, image_y, 100, mob_animations, 0, False, 1)
+                    tile_data[0] = tile_list[0]
+                elif 12 <= tile <= 16:
+                    self.character_list.append(Character(image_x, image_y, 100, mob_animations, tile - 11, False, 1))
+                    tile_data[0] = tile_list[0]
+                elif tile == 17:
+                    # boss
+                    self.character_list.append(Character(image_x, image_y, 100, mob_animations, 6, True, 2))
+                    tile_data[0] = tile_list[0]
                 if tile >= 0:
                     self.map_tiles.append(tile_data)
 

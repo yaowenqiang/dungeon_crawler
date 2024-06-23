@@ -14,7 +14,7 @@ pygame.display.set_caption("Dungeon Crawler!")
 clock = pygame.time.Clock()
 
 # define game variables
-level = 1
+level = 3
 run = True
 screen_scroll = [0, 0]
 
@@ -57,8 +57,10 @@ for x in range(4):
                         constants.ITEM_SCALE)
     coin_images.append(image)
 
-    red_potion = scale_image(pygame.image.load(f"assets/images/items/potion_red.png").convert_alpha(),
-                             constants.POTION_SCALE)
+red_potion = scale_image(pygame.image.load(f"assets/images/items/potion_red.png").convert_alpha(),
+                         constants.POTION_SCALE)
+
+item_images = [coin_images, red_potion]
 
 bow = Weapon(bow_image, arrow_image)
 
@@ -119,8 +121,11 @@ def draw_info():
         else:
             screen.blit(heart_empty_image, (i * 50 + 10, 0))
 
+    # level
+    draw_text(f'LEVEL: {level}', font, constants.WHITE, constants.SCREEN_WIDTH - 350,
+              (50 - font.get_height()) / 2)
     # show score
-    draw_text(f'X: {player.score}', font, constants.WHITE, constants.SCREEN_WIDTH - 250,
+    draw_text(f'X: {player.score}', font, constants.WHITE, constants.SCREEN_WIDTH - 150,
               (50 - font.get_height()) / 2)
 
 
@@ -141,7 +146,7 @@ with open(f'levels/level{level}_data.csv', encoding='utf-8', newline='') as csvf
             world_data[x][y] = int(tile)
 
 world = World()
-world.process_data(world_data, tile_list)
+world.process_data(world_data, tile_list, item_images, mob_animations)
 
 
 def draw_grid():
@@ -152,11 +157,13 @@ def draw_grid():
                          (constants.SCREEN_WIDTH, x * constants.TILE_SIZE))
 
 
-player = Character(400, 300, 15, mob_animations, 0)
-enemy = Character(300, 300, 100, mob_animations, 1)
+# player = Character(400, 300, 15, mob_animations, 0)
+player = world.player
+
+# enemy = Character(300, 300, 100, mob_animations, 1)
 
 # create enemy
-enemy_list = [enemy]
+enemy_list = world.character_list
 
 damage_text_group = pygame.sprite.Group()
 #
@@ -169,13 +176,15 @@ damage_text_group = pygame.sprite.Group()
 arrow_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 
-potion = Item(200, 200, 1, [red_potion])
-coin = Item(400, 400, 0, coin_images)
+# potion = Item(200, 200, 1, [red_potion])
+# coin = Item(400, 400, 0, coin_images)
 score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images, True)
-
-item_group.add(potion)
-item_group.add(coin)
+# item_group.add(potion)
+# item_group.add(coin)
 item_group.add(score_coin)
+
+for item in world.item_list:
+    item_group.add(item)
 
 while run:
     clock.tick(constants.FPS)
