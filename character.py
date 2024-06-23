@@ -22,6 +22,10 @@ class Character:
         self.health = health
         self.alive = True
 
+        self.hit = False
+        self.last_hit = pygame.time.get_ticks()
+        self.stunned = False
+
     def move(self, dx, dy, obstacle_tiles):
         screen_scroll = [0, 0]
         # control diagonal speed
@@ -72,9 +76,53 @@ class Character:
             self.rect.top = constants.SCROLL_THRESH
         return screen_scroll
 
-    def ai(self, screen_scroll):
+    # check distance to player
+    def ai(self, player, obstacle_tiles, screen_scroll, surface):
+        ai_dx = 0
+        ai_dy = 0
+        clipped_line = ()
+        stun_cooldown = 100
         self.rect.x += screen_scroll[0]
         self.rect.y += screen_scroll[1]
+        # create a line of sight from the enemy to the player
+        line_of_sight = ((self.rect.centerx, self.rect.centery), (player.rect.centerx, player.rect.centery))
+        # check if line of sight passes through an obstacle_tile file
+        for obstacle in obstacle_tiles:
+            if obstacle[1].clipline(line_of_sight):
+                clipped_line = obstacle[1].clipline(line_of_sight)
+
+        # pygame.draw.line(surface, constants.RED, line_of_sight[0], line_of_sight[1], 1)
+        dist = math.sqrt(
+            (self.rect.centerx - player.rect.centerx) ** 2 + (self.rect.centery - player.rect.centery) ** 2)
+        if not clipped_line and dist > constants.RANGE:
+            if self.rect.centerx > player.rect.centerx:
+                ai_dx = -constants.ENEMY_SPEED
+            if self.rect.centerx < player.rect.centerx:
+                ai_dx = constants.ENEMY_SPEED
+
+            if self.rect.centery > player.rect.centery:
+                ai_dy = -constants.ENEMY_SPEED
+            if self.rect.centery < player.rect.centery:
+                ai_dy = constants.ENEMY_SPEED
+
+        if self.alive:
+            if not self.stunned:
+                self.move(ai_dx, ai_dy, obstacle_tiles)
+                # attack player
+                if dist < constants.ATTACK_RANGE and not player.hit:
+                    player.health -= 10
+                    player.hit = True
+                    player.last_hit = pygame.time.get_ticks()
+
+            if self.hit:
+                self.hit = False
+                self.last_hit = pygame.time.get_ticks()
+                self.stunned = True
+                self.running = False
+                self.update_action(0)
+
+            if pygame.time.get_ticks() - self.last_hit > stun_cooldown:
+                self.stunned = False
 
     def update_action(self, new_action):
         if new_action != self.action:
@@ -86,6 +134,12 @@ class Character:
         if self.health <= 0:
             self.health = 0
             self.alive = False
+
+        # timer to reset player taking a hit
+        hit_cooldown = 1000
+        if self.char_type == 0:
+            if self.hit and (pygame.time.get_ticks() - self.last_hit > hit_cooldown):
+                self.hit = False
 
         if self.running:
             self.update_action(1)

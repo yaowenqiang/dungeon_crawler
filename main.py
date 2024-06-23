@@ -122,10 +122,13 @@ def draw_info():
             screen.blit(heart_empty_image, (i * 50 + 10, 0))
 
     # level
-    draw_text(f'LEVEL: {level}', font, constants.WHITE, constants.SCREEN_WIDTH - 350,
+    draw_text(f'L: {level}', font, constants.WHITE, constants.SCREEN_WIDTH - 300,
               (50 - font.get_height()) / 2)
     # show score
-    draw_text(f'X: {player.score}', font, constants.WHITE, constants.SCREEN_WIDTH - 150,
+    draw_text(f'X: {player.score} ', font, constants.WHITE, constants.SCREEN_WIDTH - 150,
+              (50 - font.get_height()) / 2)
+
+    draw_text(f'H: {player.health} ', font, constants.WHITE, constants.SCREEN_WIDTH - 450,
               (50 - font.get_height()) / 2)
 
 
@@ -212,7 +215,7 @@ while run:
 
     world.update(screen_scroll)
     for enemy in enemy_list:
-        enemy.ai(screen_scroll)
+        enemy.ai(player, world.obstacle_tiles, screen_scroll, screen)
         enemy.update()
 
     arrow = bow.update(player)
@@ -220,7 +223,7 @@ while run:
         arrow_group.add(arrow)
 
     for arrow in arrow_group:
-        damage, damage_pos = arrow.update(screen_scroll, enemy_list)
+        damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list)
         if damage:
             damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
             damage_text_group.add(damage_text)
