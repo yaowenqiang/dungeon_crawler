@@ -29,7 +29,7 @@ class World:
                 if tile == 7:
                     self.obstacle_tiles.append(tile_data)
                 elif tile == 8:
-                    self.exit_tile = tile
+                    self.exit_tile = tile_data
                 elif tile == 9:
                     coin = Item(image_x, image_y, 0, item_images[0])
                     tile_data[0] = tile_list[0]

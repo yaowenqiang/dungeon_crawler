@@ -28,8 +28,9 @@ class Character:
         self.last_attack = pygame.time.get_ticks()
         self.stunned = False
 
-    def move(self, dx, dy, obstacle_tiles):
+    def move(self, dx, dy, obstacle_tiles, exit_tile=None):
         screen_scroll = [0, 0]
+        level_complete = False
         # control diagonal speed
         self.running = False
         if dx != 0 or dy != 0:
@@ -63,6 +64,12 @@ class Character:
                     self.rect.top = obstacle[1].bottom
 
         if self.char_type == 0:
+            if exit_tile[1].colliderect(self.rect):
+                exit_dist = math.sqrt(
+                    (self.rect.centerx - exit_tile[1].centerx) ** 2 + (self.rect.centery - exit_tile[1].centery) ** 2)
+                if exit_dist < 20:
+                    level_complete = True
+
             if self.rect.right > (constants.SCREEN_WIDTH - constants.SCROLL_THRESH):
                 screen_scroll[0] = constants.SCREEN_WIDTH - constants.SCROLL_THRESH - self.rect.right
                 self.rect.right = constants.SCREEN_WIDTH - constants.SCROLL_THRESH
@@ -76,7 +83,7 @@ class Character:
         if self.rect.top < constants.SCROLL_THRESH:
             screen_scroll[1] = constants.SCROLL_THRESH - self.rect.top
             self.rect.top = constants.SCROLL_THRESH
-        return screen_scroll
+        return screen_scroll, level_complete
 
     # check distance to player
     def ai(self, player, obstacle_tiles, screen_scroll, surface, fireball_image):

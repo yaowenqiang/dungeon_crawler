@@ -14,7 +14,7 @@ pygame.display.set_caption("Dungeon Crawler!")
 clock = pygame.time.Clock()
 
 # define game variables
-level = 3
+level = 2
 run = True
 screen_scroll = [0, 0]
 
@@ -133,12 +133,7 @@ def draw_info():
               (50 - font.get_height()) / 2)
 
 
-world_data = [
-    # [7, 7, 7, 7, 7],
-    # [7, 0, 1, 2, 7],
-    # [7, 3, 4, 5, 7],
-    # [7, 7, 7, 7, 7],
-]
+world_data = [ ]
 for row in range(constants.ROWS):
     r = [-1] * constants.COLS
     world_data.append(r)
@@ -159,6 +154,19 @@ def draw_grid():
                          (x * constants.TILE_SIZE, constants.SCREEN_HEIGHT))
         pygame.draw.line(screen, constants.WHITE, (0, x * constants.TILE_SIZE),
                          (constants.SCREEN_WIDTH, x * constants.TILE_SIZE))
+
+
+def reset_level():
+    damage_text_group.empty()
+    arrow_group.empty()
+    item_group.empty()
+    fireball_group.empty()
+    data = [ ]
+    for row in range(constants.ROWS):
+        r = [-1] * constants.COLS
+        data.append(r)
+
+    return data
 
 
 # player = Character(400, 300, 15, mob_animations, 0)
@@ -210,7 +218,7 @@ while run:
     if moving_down:
         dy = constants.SPEED
 
-    screen_scroll = player.move(dx, dy, world.obstacle_tiles)
+    screen_scroll, level_complete = player.move(dx, dy, world.obstacle_tiles, world.exit_tile)
 
     # update all objects
     player.update()
@@ -260,6 +268,30 @@ while run:
 
     draw_info()
     score_coin.draw(screen)
+
+    # check level complete
+
+    if level_complete:
+        level += 1
+        world_data = reset_level()
+        with open(f'levels/level{level}_data.csv', encoding='utf-8', newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for x, row in enumerate(reader):
+                for y, tile in enumerate(row):
+                    world_data[x][y] = int(tile)
+        world = World()
+        world.process_data(world_data, tile_list, item_images, mob_animations)
+        temp_hp = player.health
+        temp_score = player.score
+        player = world.player
+        player.health = temp_hp
+        player.score = temp_score
+
+        enemy_list = world.character_list
+        score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images, True)
+        item_group.add(score_coin)
+        for item in world.item_list:
+            item_group.add(item)
 
     # event handler
     for event in pygame.event.get():
