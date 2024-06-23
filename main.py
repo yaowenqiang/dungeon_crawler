@@ -16,6 +16,7 @@ clock = pygame.time.Clock()
 # define game variables
 level = 1
 run = True
+screen_scroll = [0, 0]
 
 moving_left = False
 moving_right = False
@@ -91,6 +92,8 @@ class DamageText(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
+        self.rect.x += screen_scroll[0]
+        self.rect.y += screen_scroll[1]
         # move damage text up
         self.rect.y -= 1
         self.counter += 1
@@ -149,8 +152,8 @@ def draw_grid():
                          (constants.SCREEN_WIDTH, x * constants.TILE_SIZE))
 
 
-player = Character(100, 100, 15, mob_animations, 0)
-enemy = Character(200, 200, 100, mob_animations, 1)
+player = Character(400, 300, 15, mob_animations, 0)
+enemy = Character(300, 300, 100, mob_animations, 1)
 
 # create enemy
 enemy_list = [enemy]
@@ -168,7 +171,7 @@ item_group = pygame.sprite.Group()
 
 potion = Item(200, 200, 1, [red_potion])
 coin = Item(400, 400, 0, coin_images)
-score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images)
+score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images, True)
 
 item_group.add(potion)
 item_group.add(coin)
@@ -193,12 +196,14 @@ while run:
     if moving_down:
         dy = constants.SPEED
 
-    player.move(dx, dy)
+    screen_scroll = player.move(dx, dy)
 
-    # update player
+    # update all objects
     player.update()
 
+    world.update(screen_scroll)
     for enemy in enemy_list:
+        enemy.ai(screen_scroll)
         enemy.update()
 
     arrow = bow.update(player)
@@ -206,16 +211,16 @@ while run:
         arrow_group.add(arrow)
 
     for arrow in arrow_group:
-        damage, damage_pos = arrow.update(enemy_list)
+        damage, damage_pos = arrow.update(screen_scroll, enemy_list)
         if damage:
             damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
             damage_text_group.add(damage_text)
 
-    # for damage in damage_text_group:
-    #     damage.update()
+    for damage in damage_text_group:
+        damage.update()
 
     damage_text_group.update()
-    item_group.update(player)
+    item_group.update(screen_scroll, player)
     world.draw(screen)
 
     # draw player

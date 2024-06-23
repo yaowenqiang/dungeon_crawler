@@ -16,7 +16,7 @@ class Weapon:
         self.fired = False
         self.last_shoot = pygame.time.get_ticks()
 
-    def update(self, player):
+    def update(self, screen_scroll, player):
         shoot_cooldown = 300
         arrow = None
         self.rect.center = player.rect.center
@@ -60,12 +60,12 @@ class Arrow(pygame.sprite.Sprite):
         self.dx = math.cos(math.radians(self.angle)) * constants.ARROW_SPEED
         self.dy = -(math.sin(math.radians(self.angle)) * constants.ARROW_SPEED)
 
-    def update(self, enemy_list):
+    def update(self, screen_scroll, enemy_list):
         damage = 0
         damage_pos = None
         # reposition based on speed
-        self.rect.x += self.dx
-        self.rect.y += self.dy
+        self.rect.x += screen_scroll[0] + self.dx
+        self.rect.y += screen_scroll[1] + self.dy
 
         if self.rect.right < 0 or self.rect.left > constants.SCREEN_WIDTH or self.rect.bottom < 0 or self.rect.top > constants.SCREEN_HEIGHT:
             self.kill()
