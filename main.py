@@ -15,6 +15,7 @@ clock = pygame.time.Clock()
 
 # define game variables
 level = 2
+start_intro = False
 run = True
 screen_scroll = [0, 0]
 
@@ -37,7 +38,8 @@ def scale_image(image, scale):
 # load weapon images
 bow_image = scale_image(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(), constants.WEAPON_SCALE)
 arrow_image = scale_image(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(), constants.WEAPON_SCALE)
-fireball_image = scale_image(pygame.image.load("assets/images/weapons/fireball.png").convert_alpha(), constants.FIREBALL_SCALE)
+fireball_image = scale_image(pygame.image.load("assets/images/weapons/fireball.png").convert_alpha(),
+                             constants.FIREBALL_SCALE)
 heart_empty_image = scale_image(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(),
                                 constants.ITEM_SCALE)
 heart_half_image = scale_image(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(),
@@ -104,6 +106,27 @@ class DamageText(pygame.sprite.Sprite):
             self.kill()
 
 
+class ScreenFade:
+    def __init__(self, direction, color, speed):
+        self.direction = direction
+        self.color = color
+        self.speed = speed
+        self.fade_counter = 0
+
+    def fade(self):
+        fade_complete = False
+        self.fade_counter += self.speed
+        if self.direction == 1:
+            pygame.draw.rect(screen, self.color, (0 - self.fade_counter, 0, constants.SCREEN_WIDTH // 2, constants.SCREEN_HEIGHT))
+            pygame.draw.rect(screen, self.color, (constants.SCREEN_WIDTH // 2 + self.fade_counter, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+            pygame.draw.rect(screen, self.color, (0, 0 - self.fade_counter, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT // 2))
+            pygame.draw.rect(screen, self.color, (0, constants.SCREEN_HEIGHT // 2 + self.fade_counter, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+        if self.fade_counter >= constants.SCREEN_WIDTH:
+            fade_complete = True
+
+        return fade_complete
+
+
 def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img, (x, y))
@@ -133,7 +156,9 @@ def draw_info():
               (50 - font.get_height()) / 2)
 
 
-world_data = [ ]
+intro_fade = ScreenFade(1, constants.BLACK, 4)
+
+world_data = []
 for row in range(constants.ROWS):
     r = [-1] * constants.COLS
     world_data.append(r)
@@ -161,7 +186,7 @@ def reset_level():
     arrow_group.empty()
     item_group.empty()
     fireball_group.empty()
-    data = [ ]
+    data = []
     for row in range(constants.ROWS):
         r = [-1] * constants.COLS
         data.append(r)
@@ -272,6 +297,7 @@ while run:
     # check level complete
 
     if level_complete:
+        start_intro = True
         level += 1
         world_data = reset_level()
         with open(f'levels/level{level}_data.csv', encoding='utf-8', newline='') as csvfile:
@@ -293,6 +319,10 @@ while run:
         for item in world.item_list:
             item_group.add(item)
 
+    if start_intro:
+        if intro_fade.fade():
+            start_intro = False
+            intro_fade.fade_counter = 0
     # event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
