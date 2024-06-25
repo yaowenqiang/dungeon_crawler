@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 import csv
 import constants
 from character import Character
@@ -7,6 +8,7 @@ from items import Item
 from world import World
 from button import Button
 
+mixer.init()
 pygame.init()
 
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
@@ -38,6 +40,24 @@ def scale_image(image, scale):
     return pygame.transform.scale(image, (w, h))
 
 
+# load music and sounds
+
+pygame.mixer.music.load("assets/audio/music.wav")
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1, 0.0, 5000)
+
+shoot_fx = pygame.mixer.Sound('assets/audio/arrow_shot.mp3')
+shoot_fx.set_volume(0.5)
+
+hit_fx = pygame.mixer.Sound('assets/audio/arrow_hit.wav')
+hit_fx.set_volume(0.5)
+
+coin_fx = pygame.mixer.Sound('assets/audio/coin.wav')
+coin_fx.set_volume(0.5)
+
+heal_fx = pygame.mixer.Sound('assets/audio/heal.wav')
+heal_fx.set_volume(0.5)
+
 # load weapon images
 bow_image = scale_image(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(), constants.WEAPON_SCALE)
 arrow_image = scale_image(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(), constants.WEAPON_SCALE)
@@ -51,13 +71,13 @@ heart_full_image = scale_image(pygame.image.load("assets/images/items/heart_full
                                constants.ITEM_SCALE)
 
 start_image = scale_image(pygame.image.load("assets/images/buttons/button_start.png").convert_alpha(),
-                            constants.BUTTON_SCALE)
+                          constants.BUTTON_SCALE)
 exit_image = scale_image(pygame.image.load("assets/images/buttons/button_exit.png").convert_alpha(),
                          constants.BUTTON_SCALE)
 restart_image = scale_image(pygame.image.load("assets/images/buttons/button_restart.png").convert_alpha(),
                             constants.BUTTON_SCALE)
 resume_image = scale_image(pygame.image.load("assets/images/buttons/button_resume.png").convert_alpha(),
-                            constants.BUTTON_SCALE)
+                           constants.BUTTON_SCALE)
 
 tile_list = []
 for x in range(constants.TILE_TYPES):
@@ -300,10 +320,12 @@ while run:
                 arrow = bow.update(player)
                 if arrow:
                     arrow_group.add(arrow)
+                    shoot_fx.play()
 
                 for arrow in arrow_group:
                     damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list)
                     if damage:
+                        hit_fx.play()
                         damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
                         damage_text_group.add(damage_text)
 
@@ -314,7 +336,7 @@ while run:
                     fireball.update(screen_scroll, player)
 
                 damage_text_group.update()
-                item_group.update(screen_scroll, player)
+                item_group.update(screen_scroll, player, coin_fx, heal_fx)
 
             world.draw(screen)
 

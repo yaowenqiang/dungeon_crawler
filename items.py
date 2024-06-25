@@ -15,7 +15,7 @@ class Item(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.dummy_coin = dummy_coin
 
-    def update(self, screen_scroll, player):
+    def update(self, screen_scroll, player, coin_fx, heal_fx):
         # reposition based on screen scroll
         if not self.dummy_coin:
             self.rect.x += screen_scroll[0]
@@ -24,8 +24,10 @@ class Item(pygame.sprite.Sprite):
         if self.rect.colliderect(player.rect):
             if self.item_type == 0:
                 player.score += 1
+                coin_fx.play()
             elif self.item_type == 1:
                 player.health += 10
+                heal_fx.play()
                 if player.health > 0:
                     player.health = 100
             self.kill()
