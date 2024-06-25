@@ -5,6 +5,7 @@ from character import Character
 from weapon import Weapon
 from items import Item
 from world import World
+from button import Button
 
 pygame.init()
 
@@ -46,6 +47,9 @@ heart_half_image = scale_image(pygame.image.load("assets/images/items/heart_half
                                constants.ITEM_SCALE)
 heart_full_image = scale_image(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(),
                                constants.ITEM_SCALE)
+
+restart_image = scale_image(pygame.image.load("assets/images/buttons/button_restart.png").convert_alpha(),
+                               constants.BUTTON_SCALE)
 
 tile_list = []
 for x in range(constants.TILE_TYPES):
@@ -232,6 +236,8 @@ item_group.add(score_coin)
 for item in world.item_list:
     item_group.add(item)
 
+restart_button = Button(constants.SCREEN_WIDTH // 2 - 175, constants.SCREEN_HEIGHT // 2 - 50, restart_image)
+
 while run:
     clock.tick(constants.FPS)
     screen.fill(constants.BG)
@@ -336,25 +342,26 @@ while run:
 
     if not player.alive:
         if death_fade.fade():
-            death_fade.fade_counter = 0
-            start_intro = True
-            world_data = reset_level()
-            with open(f'levels/level{level}_data.csv', encoding='utf-8', newline='') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',')
-                for x, row in enumerate(reader):
-                    for y, tile in enumerate(row):
-                        world_data[x][y] = int(tile)
-            world = World()
-            world.process_data(world_data, tile_list, item_images, mob_animations)
-            temp_score = player.score
-            player = world.player
-            player.score = temp_score
+            if restart_button.draw(screen):
+                death_fade.fade_counter = 0
+                start_intro = True
+                world_data = reset_level()
+                with open(f'levels/level{level}_data.csv', encoding='utf-8', newline='') as csvfile:
+                    reader = csv.reader(csvfile, delimiter=',')
+                    for x, row in enumerate(reader):
+                        for y, tile in enumerate(row):
+                            world_data[x][y] = int(tile)
+                world = World()
+                world.process_data(world_data, tile_list, item_images, mob_animations)
+                temp_score = player.score
+                player = world.player
+                player.score = temp_score
 
-            enemy_list = world.character_list
-            score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images, True)
-            item_group.add(score_coin)
-            for item in world.item_list:
-                item_group.add(item)
+                enemy_list = world.character_list
+                score_coin = Item(constants.SCREEN_WIDTH - 150, 23, 0, coin_images, True)
+                item_group.add(score_coin)
+                for item in world.item_list:
+                    item_group.add(item)
 
     # event handler
     for event in pygame.event.get():
