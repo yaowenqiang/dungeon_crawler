@@ -2,7 +2,6 @@ import pygame
 from pygame import mixer
 import csv
 import constants
-from character import Character
 from weapon import Weapon
 from items import Item
 from world import World
@@ -17,7 +16,7 @@ pygame.display.set_caption("Dungeon Crawler!")
 clock = pygame.time.Clock()
 
 # define game variables
-level = 2
+level = 1
 start_game = False
 pause_game = False
 start_intro = False
@@ -81,7 +80,7 @@ resume_image = scale_image(pygame.image.load("assets/images/buttons/button_resum
 
 tile_list = []
 for x in range(constants.TILE_TYPES):
-    tile_image = pygame.image.load(f"assets/images/tiles/{x}.png").convert_alpha();
+    tile_image = pygame.image.load(f"assets/images/tiles/{x}.png").convert_alpha()
     tile_image = pygame.transform.scale(tile_image, (constants.TILE_SIZE, constants.TILE_SIZE))
     tile_list.append(tile_image)
 

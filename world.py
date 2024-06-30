@@ -24,7 +24,7 @@ class World:
                 # image_rect.x = image_x
                 # image_rect.y = image_y
                 image_rect.center = (image_x, image_y)
-                tile_data = [image, image_rect, image_x, image_y]
+                tile_data = [image, image_rect, image_x, image_y, x, y]
 
                 if tile == 7:
                     self.obstacle_tiles.append(tile_data)
@@ -39,14 +39,14 @@ class World:
                     self.item_list.append(potion)
                     tile_data[0] = tile_list[0]
                 elif tile == 11:
-                    self.player = Character(image_x, image_y, 100, mob_animations, 0, False, 1)
+                    self.player = Character(image_x, image_y, 100, mob_animations, 0, False, 1, x, y)
                     tile_data[0] = tile_list[0]
                 elif 12 <= tile <= 16:
-                    self.character_list.append(Character(image_x, image_y, 100, mob_animations, tile - 11, False, 1))
+                    self.character_list.append(Character(image_x, image_y, 100, mob_animations, tile - 11, False, 1, x, y))
                     tile_data[0] = tile_list[0]
                 elif tile == 17:
                     # boss
-                    self.character_list.append(Character(image_x, image_y, 100, mob_animations, 6, True, 2))
+                    self.character_list.append(Character(image_x, image_y, 100, mob_animations, 6, True, 2, x, y))
                     tile_data[0] = tile_list[0]
                 if tile >= 0:
                     self.map_tiles.append(tile_data)

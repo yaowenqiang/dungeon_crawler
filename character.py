@@ -6,7 +6,9 @@ from weapon import Fireball
 
 
 class Character:
-    def __init__(self, x, y, health, mob_animations, char_type, boss, size):
+    def __init__(self, x, y, health, mob_animations, char_type, boss, size, grid_x, grid_y):
+        self.grid_y = grid_y
+        self.grid_x = grid_x
         self.char_type = char_type
         self.score = 0
         self.flip = False
@@ -35,6 +37,8 @@ class Character:
         self.running = False
         if dx != 0 or dy != 0:
             self.running = True
+        else:
+            return screen_scroll, level_complete
 
         if dx < 0:
             self.flip = True
@@ -100,8 +104,10 @@ class Character:
         for obstacle in obstacle_tiles:
             if obstacle[1].clipline(line_of_sight):
                 clipped_line = obstacle[1].clipline(line_of_sight)
+                break
 
-        # pygame.draw.line(surface, constants.RED, line_of_sight[0], line_of_sight[1], 1)
+        if clipped_line:
+            pygame.draw.line(surface, constants.RED, line_of_sight[0], line_of_sight[1], 1)
         dist = math.sqrt(
             (self.rect.centerx - player.rect.centerx) ** 2 + (self.rect.centery - player.rect.centery) ** 2)
         if not clipped_line and dist > constants.RANGE:
