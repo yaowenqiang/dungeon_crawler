@@ -91,7 +91,7 @@ for x in range(4):
                         constants.ITEM_SCALE)
     coin_images.append(image)
 
-red_potion = scale_image(pygame.image.load(f"assets/images/items/potion_red.png").convert_alpha(),
+red_potion = scale_image(pygame.image.load("assets/images/items/potion_red.png").convert_alpha(),
                          constants.POTION_SCALE)
 
 item_images = [coin_images, red_potion]
@@ -177,7 +177,7 @@ def draw_info():
     for i in range(5):
         if player.health >= ((i + 1) * 20):
             screen.blit(heart_full_image, (i * 50 + 10, 0))
-        elif (player.health % 20 > 0) and have_heart_drawn == False:
+        elif (player.health % 20 > 0) and have_heart_drawn is False:
             screen.blit(heart_half_image, (i * 50 + 10, 0))
             have_heart_drawn = True
         else:
@@ -286,7 +286,7 @@ while run:
                 run = False
         else:
             screen.fill(constants.BG)
-            draw_grid()
+            # draw_grid()
             if player.alive:
                 dx = 0  # delta x
                 dy = 0

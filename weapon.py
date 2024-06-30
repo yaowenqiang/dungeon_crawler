@@ -29,7 +29,7 @@ class Weapon:
         self.angle = math.degrees(math.atan2(y_dist, x_dist))
 
         # get mouseclick
-        if pygame.mouse.get_pressed()[0] and self.fired == False and (
+        if pygame.mouse.get_pressed()[0] and self.fired is False and (
                 pygame.time.get_ticks() - self.last_shoot) >= shoot_cooldown:  # left is clicked
             arrow = Arrow(self.arrow_image, self.rect.centerx, self.rect.centery, self.angle)
             self.fired = True

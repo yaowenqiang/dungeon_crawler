@@ -46,7 +46,7 @@ class Character:
             self.flip = False
 
         if dx != 0 and dy != 0:
-            # 计划物体对角线方向移动时对应的顶点坐标，等于速度 * √2/2
+            # 计算物体对角线方向移动时对应的顶点坐标，等于速度 * √2/2
             # 就是计算正方形的对角线的长度,
             dx = dx * (math.sqrt(2) / 2)
             dy = dy * (math.sqrt(2) / 2)
@@ -56,7 +56,7 @@ class Character:
         for obstacle in obstacle_tiles:
             if obstacle[1].colliderect(self.rect):
                 if dx > 0:
-                    self.rect.right = obstacle[1].left
+                   self.rect.right = obstacle[1].left
                 if dx < 0:
                     self.rect.left = obstacle[1].right
         self.rect.y += dy
@@ -81,12 +81,12 @@ class Character:
                 screen_scroll[0] = constants.SCROLL_THRESH - self.rect.left
                 self.rect.left = constants.SCROLL_THRESH
 
-        if self.rect.bottom > (constants.SCREEN_HEIGHT - constants.SCROLL_THRESH):
-            screen_scroll[1] = constants.SCREEN_HEIGHT - constants.SCROLL_THRESH - self.rect.bottom
-            self.rect.bottom = constants.SCREEN_HEIGHT - constants.SCROLL_THRESH
-        if self.rect.top < constants.SCROLL_THRESH:
-            screen_scroll[1] = constants.SCROLL_THRESH - self.rect.top
-            self.rect.top = constants.SCROLL_THRESH
+            if self.rect.bottom > (constants.SCREEN_HEIGHT - constants.SCROLL_THRESH):
+                screen_scroll[1] = constants.SCREEN_HEIGHT - constants.SCROLL_THRESH - self.rect.bottom
+                self.rect.bottom = constants.SCREEN_HEIGHT - constants.SCROLL_THRESH
+            if self.rect.top < constants.SCROLL_THRESH:
+                screen_scroll[1] = constants.SCROLL_THRESH - self.rect.top
+                self.rect.top = constants.SCROLL_THRESH
         return screen_scroll, level_complete
 
     # check distance to player
@@ -107,7 +107,9 @@ class Character:
                 break
 
         if clipped_line:
-            pygame.draw.line(surface, constants.RED, line_of_sight[0], line_of_sight[1], 1)
+            return fireball
+        # else:
+        #     pygame.draw.line(surface, constants.RED, line_of_sight[0], line_of_sight[1], 1)
         dist = math.sqrt(
             (self.rect.centerx - player.rect.centerx) ** 2 + (self.rect.centery - player.rect.centery) ** 2)
         if not clipped_line and dist > constants.RANGE:
@@ -120,6 +122,8 @@ class Character:
                 ai_dy = -constants.ENEMY_SPEED
             if self.rect.centery < player.rect.centery:
                 ai_dy = constants.ENEMY_SPEED
+        else:
+            return fireball
 
         if self.alive:
             if not self.stunned:
@@ -190,4 +194,4 @@ class Character:
             surface.blit(flipped_image, (self.rect.x, self.rect.y - constants.SCALE * constants.OFFSET))
         else:
             surface.blit(flipped_image, self.rect)
-        pygame.draw.rect(surface, constants.RED, self.rect, 1)
+        # pygame.draw.rect(surface, constants.RED, self.rect, 1)
